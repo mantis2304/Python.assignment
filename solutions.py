@@ -55,10 +55,6 @@ for _ in range(2, N):
     a, b = b, c
 print("\n")
 
-# ======================
-# Pattern Making
-# ======================
-
 # 6. Pyramid pattern for N=5
 print("Q6: Pyramid Pattern")
 N = 5
