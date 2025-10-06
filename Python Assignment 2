@@ -1,0 +1,60 @@
+import time
+from collections import Counter
+
+def time_it(fn):
+    def inside(*args, **kwargs):
+        start = time.time()
+        ans = fn(*args, **kwargs)
+        end = time.time()
+        print(fn.__name__, "took", round(end - start, 6), "sec")
+        return ans
+    return inside
+
+def read_logs(path):
+    with open(path, "r") as f:
+        for line in f:
+            yield line.strip()
+
+@time_it
+def only_errors(logs):
+    return [x for x in logs if ",ERROR," in x]
+
+@time_it
+def unique_levels(logs):
+    return {x.split(",")[1] for x in logs}
+
+@time_it
+def level_count(logs):
+    levels = [x.split(",")[1] for x in logs]
+    return dict(Counter(levels))
+
+def filter_logs(path, lvl):
+    for x in read_logs(path):
+        if f",{lvl}," in x:
+            yield x
+
+@time_it
+def error_codes(logs):
+    codes = {x.split("code=")[1] for x in logs if ",ERROR," in x and "code=" in x}
+    return {c: sum(1 for y in logs if f"code={c}" in y) for c in codes}
+
+if __name__ == "__main__":
+    file = "server.log"
+    all_logs = list(read_logs(file))
+
+    err = only_errors(all_logs)
+    print("\nERROR Logs:")
+    for e in err:
+        print(e)
+
+    print("\nUnique Levels:", unique_levels(all_logs))
+
+    print("\nLevel Count:", level_count(all_logs))
+
+    
+    print("\nWARNING Logs:")
+    for w in filter_logs(file, "WARNING"):
+        print(w)
+
+
+    print("\nError Codes:", error_codes(err))
